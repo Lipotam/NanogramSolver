@@ -14,10 +14,10 @@ namespace NonogramSolver.Models
         public int FieldHeight { get; set; }
 
         [XmlArrayItem("Columns")]
-        public PanelLine[] TopPanel { get; set; }
+        public List<PanelLine> TopPanel { get; set; }
 
         [XmlArrayItem("Lines")]
-        public PanelLine[] LeftPanel { get; set; }
+        public List<PanelLine> LeftPanel { get; set; }
 
         [XmlArrayItem("FieldRow")]
         public CellState[][] FieldCells { get; set; }
