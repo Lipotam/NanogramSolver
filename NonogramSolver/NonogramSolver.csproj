@@ -67,8 +67,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Models\CellStates.cs" />
+    <Compile Include="Models\CellState.cs" />
     <Compile Include="Models\CrosswordData.cs" />
+    <Compile Include="Models\PanelLine.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

@@ -1,81 +1,53 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Xml.Serialization;
 
 namespace NonogramSolver.Models
 {
-    class CrosswordData
+    [Serializable]
+    public class CrosswordData
     {
-        public CrosswordData(int width, int height)
+        [XmlElement("FieldWidth")]
+        public int FieldWidth { get; set; }
+
+        [XmlElement("FieldHeight")]
+        public int FieldHeight { get; set; }
+
+        [XmlArrayItem("Columns")]
+        public PanelLine[] TopPanel { get; set; }
+
+        [XmlArrayItem("Lines")]
+        public PanelLine[] LeftPanel { get; set; }
+
+        [XmlArrayItem("FieldRow")]
+        public CellState[][] FieldCells { get; set; }
+
+
+        public void AddNumberRow(int y, List<int> rowValues)
         {
-            if (fieldWidth < 1 || fieldHeight < 1)
-            {
-                throw new ArgumentException("Dimentions can't be less then 1.");
-            }
-
-            fieldWidth = width;
-            fieldHeight = height;
-            field = new CellStates[fieldWidth, fieldHeight];
-            leftPanel = new List<int>[fieldHeight];
-            topPanel = new List<int>[fieldWidth];
-        }
-
-        private readonly int fieldWidth;
-        private int fieldHeight;
-        private CellStates[,] field;
-        private List<int>[] leftPanel;
-        private List<int>[] topPanel;
-
-        public CellStates[,] FieldCells
-        {
-            get
-            {
-                return field;
-            }
-        }
-
-        public List<int>[] TopPanel
-        {
-            get
-            {
-                return topPanel;
-            }
-        }
-
-        public List<int>[] LeftPanel
-        {
-            get
-            {
-                return leftPanel;
-            }
-        }
-
-        public void AddNumberRow(int y, List<int> row)
-        {
-            if (y < 0 || y > fieldHeight || row == null)
+            if (y < 0 || y > FieldHeight || rowValues == null)
             {
                 throw new ArgumentException("Wrong coordinates or no data.");
             }
 
-            leftPanel[y] = row;
+            LeftPanel[y].LineValues = rowValues;
         }
 
-        public void AddNumberColumn(int x, List<int> column)
+        public void AddNumberColumn(int x, List<int> columnValues)
         {
-            if (x < 0 || x > fieldHeight || column == null)
+            if (x < 0 || x > FieldHeight || columnValues == null)
             {
                 throw new ArgumentException("Wrong coordinates or no data.");
             }
 
-            topPanel[x] = column;
+            TopPanel[x].LineValues = columnValues;
         }
 
         public void FillCell(int x, int y)
         {
-            if (x >= 0 && x < fieldWidth && y >= 0 && y < fieldHeight)
+            if (x >= 0 && x < FieldWidth && y >= 0 && y < FieldHeight)
             {
-                field[x, y] = CellStates.Filled;
+                FieldCells[x][y] = CellState.Filled;
             }
             else
             {
@@ -85,13 +57,25 @@ namespace NonogramSolver.Models
 
         public void EmptyCell(int x, int y)
         {
-            if (x >= 0 && x < fieldWidth && y >= 0 && y < fieldHeight)
+            if (x >= 0 && x < FieldWidth && y >= 0 && y < FieldHeight)
             {
-                field[x, y] = CellStates.Empty;
+                FieldCells[x][y] = CellState.Empty;
             }
             else
             {
                 throw new ArgumentException("Wrong coordinates.");
+            }
+        }
+
+        public bool IsValid()
+        {
+            if (FieldCells.GetLength(0) == FieldWidth - 1 && FieldCells.GetLength(2) == FieldHeight - 1)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
     }
