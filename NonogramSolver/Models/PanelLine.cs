@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Serialization;
 
 namespace NonogramSolver.Models
@@ -14,5 +15,15 @@ namespace NonogramSolver.Models
 
         [XmlArrayItem("Number")]
         public List<int> LineValues { get; set; }
+
+        public int GetSum()
+        {
+            return LineValues.Sum();
+        }
+
+        public int GetMinDistance()
+        {
+            return LineValues.Sum() + LineValues.Count - 1;
+        }
     }
 }
