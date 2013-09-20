@@ -1,16 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Xml.Serialization;
+using Microsoft.Win32;
+using NonogramSolver.Models;
 
 namespace NonogramSolver
 {
@@ -24,7 +21,7 @@ namespace NonogramSolver
             InitializeComponent();
         }
 
-
+        private CrosswordData crosswordData;
 
         private void TestButton_Click(object sender, RoutedEventArgs e)
         {
@@ -70,6 +67,58 @@ namespace NonogramSolver
         private void Rectangle_MouseRightButtonUp(object sender, RoutedEventArgs e)
         {
             ((Rectangle)sender).Fill = Brushes.Chartreuse;
+        }
+
+        private void OpenMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog dlg = new OpenFileDialog();
+            dlg.DefaultExt = ".txt";
+            dlg.Filter = "Text documents (.txt)|*.txt";
+
+            if (dlg.ShowDialog() == true)
+            {
+                using (TextReader reader = new StreamReader(dlg.OpenFile()))
+                {
+                    XmlSerializer serializer = new XmlSerializer(typeof(CrosswordData));
+                    crosswordData = (CrosswordData)serializer.Deserialize(reader);
+                }
+            }
+        }
+
+        private void SaveMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            //TODO remove MakeFakeCrossword()
+            MakeFakeCrossword();
+
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "Text documents (.txt)|*.txt";
+            saveFileDialog.FileName = "result";
+            saveFileDialog.DefaultExt = ".txt";
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                using (TextWriter textWriter = new StreamWriter(saveFileDialog.FileName))
+                {
+                    XmlSerializer serializer = new XmlSerializer(typeof(CrosswordData));
+                    serializer.Serialize(textWriter, crosswordData);
+                    textWriter.Close();
+                }
+            }
+        }
+
+        private void MakeFakeCrossword()
+        {
+            crosswordData = new CrosswordData
+            {
+                FieldHeight = 3,
+                FieldWidth = 3,
+                FieldCells = new CellState[3][],
+                TopPanel = new[] { new PanelLine(), new PanelLine(), new PanelLine(), },
+                LeftPanel = new[] { new PanelLine(), new PanelLine(), new PanelLine(), },
+            };
+            for (int i = 0; i < 2; i++)
+            {
+                crosswordData.FieldCells[i] = new[] { CellState.Empty, CellState.Empty, CellState.Empty };
+            }
         }
     }
 }

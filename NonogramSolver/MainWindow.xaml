@@ -3,9 +3,15 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="NonogramSolver" Height="350" Width="525">
     <Grid>
-        <Button Name="TestButton" Padding="5,5,5,5" HorizontalAlignment="Left" VerticalAlignment="Top" Click="TestButton_Click"  ></Button>
+
         <Grid Name="GridName" >
+            <Menu HorizontalAlignment="Left" Height="29"  VerticalAlignment="Top" Width="394">
+                <MenuItem Header="File" Name="FileMenuItem">
+                    <MenuItem Header="Open file" Name="OpenMenuItem" Click="OpenMenuItem_Click"/>
+                    <MenuItem Header="Save file" Name="SaveMenuItem" Click="SaveMenuItem_Click"/>
+                </MenuItem>
+            </Menu>
         </Grid>
-        
+        <Button Name="TestButton" Padding="5,5,5,5" HorizontalAlignment="Left" VerticalAlignment="Top" Click="TestButton_Click" Margin="56,214,0,0"  ></Button>
     </Grid>
 </Window>
