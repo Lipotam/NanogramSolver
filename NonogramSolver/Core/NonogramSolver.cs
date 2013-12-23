@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using NonogramSolver.Models;
 
 namespace NonogramSolver.Core
@@ -41,7 +42,7 @@ namespace NonogramSolver.Core
                 CellState[] column = this.workingData.GetColumn(i);
                 PanelLine numbers = this.crosswordInitialData.TopPanelLines[i];
 
-                this.workingData.SaveColumn(i, this.MakeSearchInLine(column, numbers));
+                this.workingData.SaveColumn(i, MakeSearchInLine(column, numbers));
 
             }
         }
@@ -60,24 +61,24 @@ namespace NonogramSolver.Core
                 CellState[] line = this.workingData.GetLine(i);
                 PanelLine numbers = this.crosswordInitialData.LeftPanelLines[i];
 
-                this.workingData.SaveColumn(i, this.MakeSearchInLine(line, numbers));
+                this.workingData.SaveColumn(i, MakeSearchInLine(line, numbers));
             }
         }
 
 
-        private CellState[] MakeSearchInLine(CellState[] elements, PanelLine numbers)
+        private static CellState[] MakeSearchInLine(CellState[] elementsInMatrix, PanelLine numbers)
         {
-            StatesGenerator generator = new StatesGenerator(elements, numbers);
-            CellState[] result = elements;
+            StatesGenerator generator = new StatesGenerator(elementsInMatrix, numbers);
+            CellState[] result = elementsInMatrix;
+            CellState[] generatorState = generator.GetNextState();
 
-            while (true)
+            while (generatorState != null)
             {
-                CellState[] generatorState = generator.GetNextState();
-                if (generatorState == null)
+                if (IsPossibleState(elementsInMatrix, generatorState))
                 {
-                    break;
+                    result = MergeStatesForSearch(result, generatorState);
                 }
-                result = this.MergeStatesForSearch(result, generatorState);
+                generatorState = generator.GetNextState();
             }
 
             for (int i = 0; i < result.Count(); i++)
@@ -87,10 +88,39 @@ namespace NonogramSolver.Core
                     result[i] = CellState.Undefined;
                 }
             }
+
+            if (IsPossibleState(elementsInMatrix, result))
+            {
+                throw new Exception("found elements crash the matrix");
+            }
             return result;
         }
 
-        private CellState[] MergeStatesForSearch(CellState[] currentStates, CellState[] possibleStates)
+        private static bool IsPossibleState(CellState[] currentConstState, CellState[] possibleState)
+        {
+            for (int i = 0; i < currentConstState.Count(); i++)
+            {
+                if (currentConstState[i] == CellState.Undefined)
+                {
+                    continue;
+                }
+                if (currentConstState[i] == CellState.Filled && possibleState[i] == CellState.Empty)
+                {
+                    return false;
+                }
+                if (currentConstState[i] == CellState.Empty && possibleState[i] == CellState.Filled)
+                {
+                    return false;
+                }
+                if (currentConstState[i] == CellState.Undefined)
+                {
+                    throw new Exception("matrix has impossible state");
+                }
+            }
+            return true;
+        }
+
+        private static CellState[] MergeStatesForSearch(CellState[] currentStates, CellState[] possibleState)
         {
             for (int i = 0; i < currentStates.Count(); i++)
             {
@@ -98,17 +128,17 @@ namespace NonogramSolver.Core
                 {
                     continue;
                 }
-                if (currentStates[i] == CellState.Filled && possibleStates[i] == CellState.Empty)
+                if (currentStates[i] == CellState.Filled && possibleState[i] == CellState.Empty)
                 {
                     currentStates[i] = CellState.None;
                 }
-                if (currentStates[i] == CellState.Empty && possibleStates[i] == CellState.Filled)
+                if (currentStates[i] == CellState.Empty && possibleState[i] == CellState.Filled)
                 {
                     currentStates[i] = CellState.None;
                 }
                 if (currentStates[i] == CellState.Undefined)
                 {
-                    currentStates[i] = possibleStates[i];
+                    currentStates[i] = possibleState[i];
                 }
             }
 
