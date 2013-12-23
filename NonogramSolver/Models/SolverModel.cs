@@ -144,6 +144,37 @@ namespace NonogramSolver.Models
             }
         }
 
+        public void SetChangesForFirstSearch()
+        {
+            for (int i = 0; i < fieldWidth; i++)
+            {
+                columnsChanged[i] = true;
+            }
+            for (int i = 0; i < fieldHeight; i++)
+            {
+                linesChanged[i] = true;
+            }
+        }
+
+        public bool HasChanges()
+        {
+            for (int i = 0; i < fieldWidth; i++)
+            {
+                if (columnsChanged[i])
+                {
+                    return true;
+                }
+            }
+            for (int i = 0; i < fieldHeight; i++)
+            {
+                if (linesChanged[i])
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         #endregion
         #region lines and columns elements getter and setter
         public CellState[] GetLine(int index)
@@ -157,7 +188,7 @@ namespace NonogramSolver.Models
             return result;
         }
 
-        public void SetLine(int index, CellState[] lineElements)
+        public void SaveLine(int index, CellState[] lineElements)
         {
             for (int i = 0; i < fieldWidth; i++)
             {
@@ -184,7 +215,7 @@ namespace NonogramSolver.Models
             return result;
         }
 
-        public void SetColumn(int index, CellState[] columnElements)
+        public void SaveColumn(int index, CellState[] columnElements)
         {
             for (int i = 0; i < fieldWidth; i++)
             {
