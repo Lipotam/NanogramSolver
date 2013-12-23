@@ -26,6 +26,8 @@ namespace NonogramSolver.Core
                 this.ColumnSearchLoop();
                 this.workingData.ResetColumnChangedMarkers();
             }
+
+            crosswordInitialData.FieldCells = workingData.Matrix;
         }
 
         private void ColumnSearchLoop()

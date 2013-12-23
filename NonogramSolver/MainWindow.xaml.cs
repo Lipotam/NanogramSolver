@@ -8,6 +8,7 @@ using System.Windows.Shapes;
 using System.Xml.Serialization;
 using Microsoft.Win32;
 using NonogramSolver.Models;
+using NonogramSolver.Core;
 
 namespace NonogramSolver
 {
@@ -22,42 +23,6 @@ namespace NonogramSolver
         }
 
         private CrosswordData crosswordData;
-
-        private void TestButton_Click(object sender, RoutedEventArgs e)
-        {
-            int columns = 5;
-            int rows = 10;
-
-            List<SolidColorBrush> colours = new List<SolidColorBrush>
-                {
-                                Brushes.AliceBlue,
-                                Brushes.Aqua,
-                                Brushes.Blue
-                };
-
-            Random random = new Random();
-
-            for (int i = 0; i < rows; i++)
-            {
-                GridName.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
-            }
-
-            for (int i = 0; i < columns; i++)
-            {
-                GridName.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(40) });
-
-                for (int j = 0; j < rows; j++)
-                {
-                    Rectangle rectangle = new Rectangle { Height = 30, Width = 40, Fill = colours.ToArray()[random.Next(3)] };
-                    rectangle.Tag = String.Format("{0} {1}", i, j);
-                    rectangle.MouseLeftButtonUp += this.Rectangle_MouseLeftButtonUp;
-                    rectangle.MouseRightButtonDown += this.Rectangle_MouseRightButtonUp;
-                    Grid.SetColumn(rectangle, i);
-                    Grid.SetRow(rectangle, j);
-                    GridName.Children.Add(rectangle);
-                }
-            }
-        }
 
         private void Rectangle_MouseLeftButtonUp(object sender, RoutedEventArgs e)
         {
@@ -106,19 +71,85 @@ namespace NonogramSolver
         }
 
         private void MakeFakeCrossword()
+            {
+
+            crosswordData = GetCrosswordSample_1();
+            //crosswordData = new CrosswordData
+            //{
+            //    FieldHeight = 3,
+            //    FieldWidth = 3,
+            //    FieldCells = new CellState[3][],
+            //    TopPanelLines = new[] { new PanelLine(), new PanelLine(), new PanelLine(), },
+            //    LeftPanelLines = new[] { new PanelLine(), new PanelLine(), new PanelLine(), },
+            //};
+            //for (int i = 0; i < 2; i++)
+            //{
+            //    crosswordData.FieldCells[i] = new[] { CellState.Empty, CellState.Empty, CellState.Empty };
+            //}
+            }
+
+        private void DoTheJob_Click(object sender, RoutedEventArgs e)
+            {
+            //crosswordData = GetCrosswordSample_1();
+
+            NonogramResolver solver = new NonogramResolver(crosswordData);
+            solver.StartResolving();
+
+            int columns = crosswordData.FieldWidth;
+            int rows = crosswordData.FieldHeight;
+
+            for (int i = 0; i < rows; i++)
+            {
+                GridName.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
+            }
+
+            for (int i = 0; i < columns; i++)
+            {
+                GridName.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(40) });
+
+                for (int j = 0; j < rows; j++)
+                {
+                    Rectangle rectangle = new Rectangle { Height = 10, Width = 10 };
+
+                    var fieldCells = this.crosswordData.FieldCells;
+                    if (fieldCells != null)
+                        switch (fieldCells[i][j])
+                        {
+                            case CellState.Undefined:
+                                rectangle.Fill = Brushes.Blue;
+                                break;
+                            case CellState.Empty:
+                                rectangle.Fill = Brushes.White;
+                                break;
+                            case CellState.Filled:
+                                rectangle.Fill = Brushes.Black;
+                                break;
+
+                            default:
+                                throw new ArgumentOutOfRangeException();
+                        }
+                    rectangle.Tag = String.Format("{0} {1}", i, j);
+                    rectangle.MouseLeftButtonUp += this.Rectangle_MouseLeftButtonUp;
+                    rectangle.MouseRightButtonDown += this.Rectangle_MouseRightButtonUp;
+                    Grid.SetColumn(rectangle, i);
+                    Grid.SetRow(rectangle, j);
+                    GridName.Children.Add(rectangle);
+                }
+            }
+        }
+
+
+        private CrosswordData GetCrosswordSample_1()
         {
             crosswordData = new CrosswordData
             {
                 FieldHeight = 3,
-                FieldWidth = 3,
-                FieldCells = new CellState[3][],
-                TopPanelLines = new[] { new PanelLine(), new PanelLine(), new PanelLine(), },
-                LeftPanelLines = new[] { new PanelLine(), new PanelLine(), new PanelLine(), },
+                FieldWidth = 4,
+                TopPanelLines = new[] { new PanelLine { LineValues = new List<int> { 2 } }, new PanelLine { LineValues = new List<int> { 1 } }, new PanelLine { LineValues = new List<int> { 1 } }, new PanelLine { LineValues = new List<int> { 1 } } },
+                LeftPanelLines = new[] { new PanelLine { LineValues = new List<int> { 2, 1 } }, new PanelLine { LineValues = new List<int> { 1 } }, new PanelLine { LineValues = new List<int> { 1 } } },
             };
-            for (int i = 0; i < 2; i++)
-            {
-                crosswordData.FieldCells[i] = new[] { CellState.Empty, CellState.Empty, CellState.Empty };
-            }
+
+            return crosswordData;
         }
     }
 }
