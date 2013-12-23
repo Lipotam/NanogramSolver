@@ -41,12 +41,12 @@ namespace NonogramSolver.Core
 
         public CellState[] GetNextState()
         {
-            string result = currentPossibleState.ToString();
+            string result = calcBinary(currentPossibleState, length);
 
             while (!IsPossibleForCurrentState(result) && !IsPossibleForStateCode(result))
             {
                 currentPossibleState++;
-                result = currentPossibleState.ToString();
+                result = calcBinary(currentPossibleState, length);
             }
 
             CellState[] output = new CellState[length];
@@ -110,5 +110,36 @@ namespace NonogramSolver.Core
 
             return true;
         }
+
+        private string calcBinary(BigInteger tee, int lengthForBinary)
+        {
+
+            BigInteger t = tee;
+            int len = lengthForBinary;
+
+            string fullnum = "";
+            for (int i = len; i >= 0; i--)
+            {
+                int inum;
+
+                BigInteger num = (t >> i) & 1;
+                if (num == 1)
+                {
+                    inum = 1;
+                }
+                else if (num == 0)
+                {
+                    inum = 0;
+                }
+                else
+                {
+                    inum = 666;
+                }
+                fullnum = fullnum + Convert.ToString(inum);
+
+            }
+            return fullnum;
+        }
     }
 }
+
