@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 
@@ -7,18 +6,77 @@ namespace NonogramSolver.Models
 {
     public class SolverModel
     {
+        #region Private members
+        private readonly int fieldWidth;
+        private readonly int fieldHeight;
+        private readonly CellState[][] fieldCells;
+        private readonly bool[] linesChanged, columnsChanged;
+
+        #endregion
+
+        #region Getters and Setters
+        public bool[] LinesChanged
+        {
+            get
+            {
+                return linesChanged;
+            }
+        }
+
+        public bool[] ColumnsChanged
+        {
+            get
+            {
+                return columnsChanged;
+            }
+        }
+
+        public int FieldWidth
+        {
+            get
+            {
+                return fieldWidth;
+            }
+        }
+
+        public int FieldHeight
+        {
+            get
+            {
+                return fieldHeight;
+            }
+        }
+
+        #endregion
+
+        #region Initialization
+
         public SolverModel(CrosswordData crosswordData)
         {
             CheckData(crosswordData);
 
             fieldHeight = crosswordData.FieldHeight;
             fieldWidth = crosswordData.FieldWidth;
+            if (crosswordData.FieldCells != null)
+            {
+                fieldCells = crosswordData.FieldCells;
+            }
+            else
+            {
+                fieldCells = new CellState[fieldWidth][];
+                for (int i = 0; i < fieldWidth; i++)
+                {
+                    fieldCells[i] = new CellState[fieldHeight];
+                    for (int j = 0; j < fieldHeight; j++)
+                    {
+                        fieldCells[i][j] = CellState.Undefined;
+                    }
+                }
+            }
 
+            linesChanged = new bool[fieldHeight];
+            columnsChanged = new bool[fieldWidth];
         }
-
-        private int fieldWidth;
-        private int fieldHeight;
-
 
 
         private void CheckData(CrosswordData crosswordData)
@@ -65,5 +123,82 @@ namespace NonogramSolver.Models
                 }
             }
         }
+
+        #endregion
+
+
+        #region Line and Column Changes
+        public void ResetColumnChangedMarkers()
+        {
+            for (int i = 0; i < fieldWidth; i++)
+            {
+                columnsChanged[i] = false;
+            }
+        }
+
+        public void ResetLineChangedMarkers()
+        {
+            for (int i = 0; i < fieldHeight; i++)
+            {
+                linesChanged[i] = false;
+            }
+        }
+
+        #endregion
+        #region lines and columns elements getter and setter
+        public CellState[] GetLine(int index)
+        {
+            CellState[] result = new CellState[fieldWidth];
+            for (int i = 0; i < fieldWidth; i++)
+            {
+                result[i] = fieldCells[index][i];
+            }
+
+            return result;
+        }
+
+        public void SetLine(int index, CellState[] lineElements)
+        {
+            for (int i = 0; i < fieldWidth; i++)
+            {
+                if (lineElements[i] != CellState.Empty || lineElements[i] != CellState.Filled || lineElements[i] != CellState.Undefined)
+                {
+                    throw new Exception("Solver returned bad line");
+                }
+                if (fieldCells[index][i] != lineElements[i])
+                {
+                    fieldCells[index][i] = lineElements[i];
+                    columnsChanged[i] = true;
+                }
+            }
+        }
+
+        public CellState[] GetColumn(int index)
+        {
+            CellState[] result = new CellState[fieldHeight];
+            for (int i = 0; i < fieldHeight; i++)
+            {
+                result[i] = fieldCells[i][index];
+            }
+
+            return result;
+        }
+
+        public void SetColumn(int index, CellState[] columnElements)
+        {
+            for (int i = 0; i < fieldWidth; i++)
+            {
+                if (columnElements[i] != CellState.Empty || columnElements[i] != CellState.Filled || columnElements[i] != CellState.Undefined)
+                {
+                    throw new Exception("Solver returned bad column");
+                }
+                if (fieldCells[i][index] != columnElements[i])
+                {
+                    fieldCells[i][index] = columnElements[i];
+                    linesChanged[i] = true;
+                }
+            }
+        }
+        #endregion
     }
 }
