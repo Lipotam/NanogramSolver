@@ -14,10 +14,10 @@ namespace NonogramSolver.Models
         public int FieldHeight { get; set; }
 
         [XmlArrayItem("Columns")]
-        public List<PanelLine> TopPanel { get; set; }
+        public PanelLine[] TopPanelLines { get; set; }
 
         [XmlArrayItem("Lines")]
-        public List<PanelLine> LeftPanel { get; set; }
+        public PanelLine[] LeftPanelLines { get; set; }
 
         [XmlArrayItem("FieldRow")]
         public CellState[][] FieldCells { get; set; }
@@ -30,7 +30,7 @@ namespace NonogramSolver.Models
                 throw new ArgumentException("Wrong coordinates or no data.");
             }
 
-            LeftPanel[y].LineValues = rowValues;
+            LeftPanelLines[y].LineValues = rowValues;
         }
 
         public void AddNumberColumn(int x, List<int> columnValues)
@@ -40,7 +40,7 @@ namespace NonogramSolver.Models
                 throw new ArgumentException("Wrong coordinates or no data.");
             }
 
-            TopPanel[x].LineValues = columnValues;
+            TopPanelLines[x].LineValues = columnValues;
         }
 
         public void FillCell(int x, int y)

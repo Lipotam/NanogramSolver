@@ -112,8 +112,8 @@ namespace NonogramSolver
                 FieldHeight = 3,
                 FieldWidth = 3,
                 FieldCells = new CellState[3][],
-                TopPanel = new[] { new PanelLine(), new PanelLine(), new PanelLine(), },
-                LeftPanel = new[] { new PanelLine(), new PanelLine(), new PanelLine(), },
+                TopPanelLines = new[] { new PanelLine(), new PanelLine(), new PanelLine(), },
+                LeftPanelLines = new[] { new PanelLine(), new PanelLine(), new PanelLine(), },
             };
             for (int i = 0; i < 2; i++)
             {
