@@ -74,7 +74,7 @@
     <Compile Include="Models\LineSolver.cs" />
     <Compile Include="Models\PanelLine.cs" />
     <Compile Include="Models\SolverModel.cs" />
-    <Compile Include="Core\NonogramSolver.cs" />
+    <Compile Include="Core\NonogramResolver.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

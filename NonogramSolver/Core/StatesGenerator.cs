@@ -31,24 +31,36 @@ namespace NonogramSolver.Core
             currentPossibleState = 0;
             length = initialCellStates.Length;
             numbersForState = numbers;
+            MaxPosition = (BigInteger)Math.Pow(2, length);
         }
 
         private CellState[] initialCellStates;
         private string initialState;
         private BigInteger currentPossibleState;
+        private BigInteger MaxPosition;
         private int length;
         private PanelLine numbersForState;
 
+
         public CellState[] GetNextState()
         {
-            string result = calcBinary(currentPossibleState, length);
+            if (currentPossibleState >= MaxPosition)
+            {
+                return null;
+            }
+            string result = calcBinary(currentPossibleState, length - 1);
 
-            while (!IsPossibleForCurrentState(result) && !IsPossibleForStateCode(result))
+            while (!(IsPossibleForCurrentState(result) && IsPossibleForStateCode(result)) && currentPossibleState < MaxPosition)
             {
                 currentPossibleState++;
-                result = calcBinary(currentPossibleState, length);
+                result = calcBinary(currentPossibleState, length - 1);
             }
 
+            if (currentPossibleState >= MaxPosition)
+            {
+                return null;
+            }
+            currentPossibleState++;
             CellState[] output = new CellState[length];
             for (int i = 0; i < result.Length; i++)
             {
@@ -93,11 +105,21 @@ namespace NonogramSolver.Core
                 {
                     currentCodeValue++;
                 }
-                if (possibleState[i] == '1' && possibleState[i + 1] == '0')
+                if (possibleState[i] == '1' && possibleState[i < possibleState.Length - 1 ? i + 1 : i] == '0')
                 {
                     possibleStateCode.Add(currentCodeValue);
                     currentCodeValue = 0;
                 }
+            }
+            if (currentCodeValue != 0)
+            {
+                possibleStateCode.Add(currentCodeValue);
+            }
+
+
+            if (numbersForState.LineValues.Count != possibleStateCode.Count)
+            {
+                return false;
             }
 
             for (int i = 0; i < numbersForState.LineValues.Count; i++)

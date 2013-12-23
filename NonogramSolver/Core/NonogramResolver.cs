@@ -4,9 +4,9 @@ using NonogramSolver.Models;
 
 namespace NonogramSolver.Core
 {
-    class NonogramSolver
+    class NonogramResolver
     {
-        public NonogramSolver(CrosswordData crosswordData)
+        public NonogramResolver(CrosswordData crosswordData)
         {
             this.crosswordInitialData = crosswordData;
         }
@@ -61,7 +61,7 @@ namespace NonogramSolver.Core
                 CellState[] line = this.workingData.GetLine(i);
                 PanelLine numbers = this.crosswordInitialData.LeftPanelLines[i];
 
-                this.workingData.SaveColumn(i, MakeSearchInLine(line, numbers));
+                this.workingData.SaveLine(i, MakeSearchInLine(line, numbers));
             }
         }
 
@@ -69,7 +69,12 @@ namespace NonogramSolver.Core
         private static CellState[] MakeSearchInLine(CellState[] elementsInMatrix, PanelLine numbers)
         {
             StatesGenerator generator = new StatesGenerator(elementsInMatrix, numbers);
-            CellState[] result = elementsInMatrix;
+            CellState[] result = new CellState[elementsInMatrix.Length];
+            for (int i = 0; i < elementsInMatrix.Length; i++)
+            {
+                result[i] = elementsInMatrix[i];
+            }
+
             CellState[] generatorState = generator.GetNextState();
 
             while (generatorState != null)
@@ -89,7 +94,7 @@ namespace NonogramSolver.Core
                 }
             }
 
-            if (IsPossibleState(elementsInMatrix, result))
+            if (!IsPossibleState(elementsInMatrix, result))
             {
                 throw new Exception("found elements crash the matrix");
             }

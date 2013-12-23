@@ -47,6 +47,14 @@ namespace NonogramSolver.Models
             }
         }
 
+        public CellState[][] Matrix
+        {
+            get
+            {
+                return fieldCells;
+            }
+        }
+
         #endregion
 
         #region Initialization
@@ -77,7 +85,6 @@ namespace NonogramSolver.Models
             linesChanged = new bool[fieldHeight];
             columnsChanged = new bool[fieldWidth];
         }
-
 
         private void CheckData(CrosswordData crosswordData)
         {
@@ -182,7 +189,7 @@ namespace NonogramSolver.Models
             CellState[] result = new CellState[fieldWidth];
             for (int i = 0; i < fieldWidth; i++)
             {
-                result[i] = fieldCells[index][i];
+                result[i] = fieldCells[i][index];
             }
 
             return result;
@@ -192,13 +199,10 @@ namespace NonogramSolver.Models
         {
             for (int i = 0; i < fieldWidth; i++)
             {
-                if (lineElements[i] != CellState.Empty || lineElements[i] != CellState.Filled || lineElements[i] != CellState.Undefined)
+                CheckElementStateForOutput(lineElements[i]);
+                if (fieldCells[i][index] != lineElements[i])
                 {
-                    throw new Exception("Solver returned bad line");
-                }
-                if (fieldCells[index][i] != lineElements[i])
-                {
-                    fieldCells[index][i] = lineElements[i];
+                    fieldCells[i][index] = lineElements[i];
                     columnsChanged[i] = true;
                 }
             }
@@ -209,7 +213,7 @@ namespace NonogramSolver.Models
             CellState[] result = new CellState[fieldHeight];
             for (int i = 0; i < fieldHeight; i++)
             {
-                result[i] = fieldCells[i][index];
+                result[i] = fieldCells[index][i];
             }
 
             return result;
@@ -217,17 +221,22 @@ namespace NonogramSolver.Models
 
         public void SaveColumn(int index, CellState[] columnElements)
         {
-            for (int i = 0; i < fieldWidth; i++)
+            for (int i = 0; i < fieldHeight; i++)
             {
-                if (columnElements[i] != CellState.Empty || columnElements[i] != CellState.Filled || columnElements[i] != CellState.Undefined)
+                CheckElementStateForOutput(columnElements[i]);
+                if (fieldCells[index][i] != columnElements[i])
                 {
-                    throw new Exception("Solver returned bad column");
-                }
-                if (fieldCells[i][index] != columnElements[i])
-                {
-                    fieldCells[i][index] = columnElements[i];
+                    fieldCells[index][i] = columnElements[i];
                     linesChanged[i] = true;
                 }
+            }
+        }
+
+        private static void CheckElementStateForOutput(CellState element)
+        {
+            if (!(element == CellState.Empty || element == CellState.Filled || element == CellState.Undefined))
+            {
+                throw new Exception("Solver returned bad element");
             }
         }
         #endregion
