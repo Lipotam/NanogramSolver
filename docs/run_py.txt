@@ -1,0 +1,125 @@
+from queue import Queue
+import pdb
+
+
+class HolesSequence(object):
+    filled = 0
+    sequence = []
+    sum_tobe = None
+    max_len = None
+
+    def _get_sum(self):
+        return sum(self.sequence)
+    
+    def get_min_acceptable(self):
+        if self.filled + 1 < self.max_len:
+            return 1 if 0 < self.filled < self.max_len - 1 else 0
+        return self.max_len - self._get_sum() 
+
+    def get_max_acceptable(self):
+        """
+        returns: max holes number on this step + 1 (comfortable for generators)
+        """
+        if self.filled == 0:
+            future_holes = self.max_len - 2
+        elif self.filled == self.max_len - 1:
+            future_holes = 0
+        else:
+            future_holes = self.max_len - self.filled - 2
+        max = self.sum_tobe - self._get_sum() - future_holes 
+        return max + 1
+
+    def __init__(self, max_len, sum_tobe, filled=0):
+        self.max_len = max_len
+        self.filled = filled
+        self.sum_tobe = sum_tobe
+        
+    def copy(self):
+        a_copy = HolesSequence(self.max_len, self.sum_tobe, self.filled)
+        a_copy.sequence = self.sequence.copy()
+        return a_copy
+        
+    def get_range_acceptable(self):
+        return (self.get_min_acceptable(), self.get_max_acceptable())
+        
+    def set_next(self, value):
+        self.sequence.append(value)
+        self.filled += 1
+        
+    def __repr__(self):
+        return str(self.sequence)
+    
+    def satisfy_mask(self, blocks, mask):
+        """
+        blocks: list of int.
+        mask: list of {1, 0, None} 
+        """
+        external_representation = self.show_with_blocks(blocks)
+        for i in range(len(external_representation)):
+            if mask[i] != None and external_representation[i] != mask[i]:
+                return False
+        return True 
+        
+    def show_with_blocks(self, blocks):
+        """
+        returns: list of int.
+        """
+        result = []
+        for i in range(min(self.filled, len(blocks))):
+            result.extend(0 for x in range(self.sequence[i]))
+            result.extend(1 for x in range(blocks[i]))
+        if self.is_ready():
+            result.extend(0 for x in range(self.sequence[-1]))
+        return result
+            
+    def is_ready(self):
+        return self.filled == self.max_len
+            
+
+
+def get_holes_sequences(blocks, n, mask=None):
+    max_len, sum_tobe, mask = get_data_for_holes(blocks, n, mask)
+    work_queue = Queue()
+    work_queue.put(HolesSequence(max_len, sum_tobe))
+    while not work_queue.empty():
+        sequence = work_queue.get()
+        if sequence.is_ready():
+            yield sequence
+        else:
+            for i in range(sequence.get_min_acceptable(), sequence.get_max_acceptable()):
+                a_copy = sequence.copy()
+                a_copy.set_next(i)
+                if mask and not a_copy.satisfy_mask(blocks, mask):
+                    continue
+                work_queue.put(a_copy)
+        
+        
+def get_data_for_holes(blocks, n, mask=None):
+    """
+    returns: max_len, total amount of holes and mask.
+    """
+    def char_to_mask(character):
+        if character == '1':
+            return 1
+        if character == '0':
+            return 0
+        return None
+    if mask:
+        mask = tuple(char_to_mask(x) for x in mask)
+    return (len(blocks) + 1, n - sum(blocks), mask)
+    
+     
+
+
+
+def run(blocks, n, mask=None):
+    """
+    blocks: list of int.
+    n: int.
+    mask: list of str.
+    """
+    print(tuple(s.show_with_blocks(blocks) for s in get_holes_sequences(blocks, n, mask)))
+    
+
+if __name__ == '__main__':
+    run([2, 3, 1], 10, '1XXXXXX0UU')
