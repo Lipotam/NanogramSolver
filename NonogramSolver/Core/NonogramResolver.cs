@@ -70,22 +70,20 @@ namespace NonogramSolver.Core
 
         private static CellState[] MakeSearchInLine(CellState[] elementsInMatrix, PanelLine numbers)
         {
-            StatesGenerator generator = new StatesGenerator(elementsInMatrix, numbers);
+            StateGeneratorModified mgenerator = new StateGeneratorModified();
+
             CellState[] result = new CellState[elementsInMatrix.Length];
             for (int i = 0; i < elementsInMatrix.Length; i++)
             {
                 result[i] = elementsInMatrix[i];
             }
 
-            CellState[] generatorState = generator.GetNextState();
-
-            while (generatorState != null)
+            foreach (CellState[] generatorState in mgenerator.GetStatesList(numbers, elementsInMatrix))
             {
                 if (IsPossibleState(elementsInMatrix, generatorState))
                 {
                     result = MergeStatesForSearch(result, generatorState);
                 }
-                generatorState = generator.GetNextState();
             }
 
             for (int i = 0; i < result.Count(); i++)

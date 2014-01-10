@@ -74,6 +74,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Core\HolesSequence.cs" />
+    <Compile Include="Core\StateGeneratorModified.cs" />
     <Compile Include="Tests\PositionsNumberGeneratorTests.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
